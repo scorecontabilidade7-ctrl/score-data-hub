@@ -1,0 +1,69 @@
+id: score_data_hub_etl
+namespace: score.automacoes
+description: Orquestrador ETL do Score Data Hub (Financeiro e RH)
+
+inputs:
+  - id: data_inicial
+    type: STRING
+    required: false
+    description: "Formato: YYYY-MM-DD. Deixe vazio para usar a data padrão (2023-01-01)."
+  - id: data_final
+    type: STRING
+    required: false
+    description: "Formato: YYYY-MM-DD. Deixe vazio para usar a data padrão (2026-12-31)."
+
+triggers:
+  - id: daily_schedule
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 2 * * *" # Executa todos os dias às 02:00 da manhã
+
+tasks:
+  - id: working_dir
+    type: io.kestra.plugin.core.flow.WorkingDirectory
+    tasks:
+      - id: clone_repo
+        type: io.kestra.plugin.git.Clone
+        url: "https://github.com/scorecontabilidade7-ctrl/score-data-hub.git"
+        branch: main
+      
+      - id: execute_financeiro
+        type: io.kestra.plugin.scripts.python.Script
+        containerImage: python:3.11-slim
+        env:
+          SUPABASE_URL: "{{ kv('KV_SUPABASE_URL') }}"
+          SUPABASE_KEY: "{{ kv('KV_SUPABASE_KEY') }}"
+          EGESTOR_BASE_URL: "{{ kv('KV_EGESTOR_BASE_URL') }}"
+          EGESTOR_PERSONAL_TOKEN: "{{ kv('KV_EGESTOR_PERSONAL_TOKEN') }}"
+          KESTRA_DATA_INICIAL: "{{ trigger.body.data_inicial ?? inputs.data_inicial ?? '' }}"
+          KESTRA_DATA_FINAL: "{{ trigger.body.data_final ?? inputs.data_final ?? '' }}"
+        beforeCommands:
+          - cd etl
+          - pip install --no-cache-dir -r requirements.txt
+        script: |
+          import sys
+          import subprocess
+          import os
+          print("Iniciando ETL Financeiro...")
+          os.chdir("etl")
+          subprocess.check_call([sys.executable, "main.py"])
+
+      - id: execute_rh
+        type: io.kestra.plugin.scripts.python.Script
+        containerImage: python:3.11-slim
+        env:
+          SUPABASE_URL: "{{ kv('KV_SUPABASE_URL') }}"
+          SUPABASE_KEY: "{{ kv('KV_SUPABASE_KEY') }}"
+          FIN_SUPABASE_URL: "{{ kv('KV_FIN_SUPABASE_URL') }}"
+          FIN_SUPABASE_KEY: "{{ kv('KV_FIN_SUPABASE_KEY') }}"
+          # Caso o pipeline da Solides use tokens específicos, mapeie-os aqui se existirem:
+          # SOLIDES_TOKEN: "{{ kv('KV_SOLIDES_TOKEN') }}"
+        beforeCommands:
+          - cd etl
+          - pip install --no-cache-dir -r requirements.txt
+        script: |
+          import sys
+          import subprocess
+          import os
+          print("Iniciando ETL de RH (Solides)...")
+          os.chdir("etl/solides-people-pipeline")
+          subprocess.check_call([sys.executable, "pipeline.py"])
