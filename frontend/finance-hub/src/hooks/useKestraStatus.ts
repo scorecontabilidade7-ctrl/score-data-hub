@@ -35,9 +35,10 @@ export function useKestraStatus() {
         
         const urlObj = new URL(apiUrlBase);
         
-        // Garantir que limitamos a 1 resultado
+        // Garantir que limitamos a 1 resultado e ordenamos do mais recente pro mais antigo
         urlObj.searchParams.set('size', '1');
         urlObj.searchParams.set('page', '1');
+        urlObj.searchParams.set('sort', 'state.startDate:desc');
         
         // Extrair o namespace e flowId (pode vir da URL antiga da UI ou da nova)
         // Se vier da UI: /ui/main/flows/edit/NAMESPACE/FLOW_ID
