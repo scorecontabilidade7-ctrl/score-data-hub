@@ -23,14 +23,40 @@ export function useKestraStatus() {
       }
 
       try {
-        const urlObj = new URL(fullUrl);
+        let apiUrlBase = fullUrl;
+        
+        // Se o usuário colou a URL da interface (UI) em vez da API, vamos tentar corrigir automaticamente
+        if (fullUrl.includes('/ui/')) {
+          const match = fullUrl.match(/^(https?:\/\/[^\/]+)/);
+          if (match) {
+            apiUrlBase = `${match[1]}/api/v1/executions/search`;
+          }
+        }
+        
+        const urlObj = new URL(apiUrlBase);
+        
         // Garantir que limitamos a 1 resultado
         urlObj.searchParams.set('size', '1');
         urlObj.searchParams.set('page', '1');
         
-        const namespace = urlObj.searchParams.get('namespace');
-        const flowId = urlObj.searchParams.get('flowId');
-        const apiUrl = fullUrl.split('/api/v1/')[0];
+        // Extrair o namespace e flowId (pode vir da URL antiga da UI ou da nova)
+        // Se vier da UI: /ui/main/flows/edit/NAMESPACE/FLOW_ID
+        let namespace = urlObj.searchParams.get('namespace');
+        let flowId = urlObj.searchParams.get('flowId');
+        
+        if (!namespace || !flowId) {
+          if (fullUrl.includes('/edit/')) {
+            const parts = fullUrl.split('/edit/')[1].split('?')[0].split('/');
+            if (parts.length >= 2) {
+              namespace = parts[0];
+              flowId = parts[1];
+              urlObj.searchParams.set('namespace', namespace);
+              urlObj.searchParams.set('flowId', flowId);
+            }
+          }
+        }
+        
+        const apiUrl = urlObj.origin;
 
         const headers: Record<string, string> = {
           'Accept': 'application/json',
