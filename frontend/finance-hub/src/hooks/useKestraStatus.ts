@@ -13,26 +13,31 @@ export function useKestraStatus() {
 
   useEffect(() => {
     async function fetchStatus() {
-      const apiUrl = import.meta.env.VITE_KESTRA_API_URL;
+      const fullUrl = import.meta.env.VITE_KESTRA_STATUS_URL;
       const basicAuth = import.meta.env.VITE_KESTRA_BASIC_AUTH;
-      const namespace = import.meta.env.VITE_KESTRA_NAMESPACE || 'score.automacoes';
-      const flowId = import.meta.env.VITE_KESTRA_FLOW_ID || 'score_data_hub_etl';
 
-      if (!apiUrl || !basicAuth) {
+      if (!fullUrl || !basicAuth) {
         setIsLoading(false);
         setError("Kestra não configurado no .env");
         return;
       }
 
       try {
+        const urlObj = new URL(fullUrl);
+        // Garantir que limitamos a 1 resultado
+        urlObj.searchParams.set('size', '1');
+        urlObj.searchParams.set('page', '1');
+        
+        const namespace = urlObj.searchParams.get('namespace');
+        const flowId = urlObj.searchParams.get('flowId');
+        const apiUrl = fullUrl.split('/api/v1/')[0];
+
         const headers: Record<string, string> = {
           'Accept': 'application/json',
           'Authorization': `Basic ${btoa(basicAuth)}`
         };
-
-        const url = `${apiUrl}/api/v1/executions/search?namespace=${namespace}&flowId=${flowId}&size=1&page=1`;
         
-        const res = await fetch(url, { headers });
+        const res = await fetch(urlObj.toString(), { headers });
         
         if (!res.ok) {
           throw new Error(`Erro na API: ${res.status}`);
