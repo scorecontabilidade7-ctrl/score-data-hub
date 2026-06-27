@@ -20,6 +20,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useKestraStatus } from "@/hooks/useKestraStatus";
+import { RefreshCcw, CheckCircle2, Clock, XCircle, AlertCircle as AlertIcon } from "lucide-react";
 
 function DateRangeFilter({
   startDate, endDate, onStartChange, onEndChange
@@ -62,6 +64,7 @@ export function FinancialDashboard() {
   const [dateRanges, setDateRanges] = useState<Record<string, { start: string; end: string }>>({});
   const { signOut } = useAuth();
   const navigate = useNavigate();
+  const { status: kestraStatus, isLoading: isKestraLoading } = useKestraStatus();
 
   const handleLogout = async () => {
     await signOut();
@@ -121,6 +124,37 @@ export function FinancialDashboard() {
               onStartChange={setStartDate}
               onEndChange={setEndDate}
             />
+
+            {/* Kestra Status Indicator */}
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-card/50 border border-border rounded-lg text-xs">
+              {isKestraLoading ? (
+                <RefreshCcw className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+              ) : kestraStatus ? (
+                <>
+                  <a
+                    href={kestraStatus.kestraUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
+                    title={`Ver logs no Kestra (${kestraStatus.status})`}
+                  >
+                    {kestraStatus.status === 'Sucesso' && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />}
+                    {kestraStatus.status === 'Em Execução' && <RefreshCcw className="h-3.5 w-3.5 animate-spin text-blue-500" />}
+                    {kestraStatus.status === 'Falha' && <XCircle className="h-3.5 w-3.5 text-red-500" />}
+                    {kestraStatus.status === 'Pausado' && <Clock className="h-3.5 w-3.5 text-amber-500" />}
+                    {kestraStatus.status === 'Desconhecido' && <AlertIcon className="h-3.5 w-3.5 text-muted-foreground" />}
+                    
+                    <div className="flex flex-col">
+                      <span className="text-[9px] text-muted-foreground font-semibold uppercase leading-tight">Sincronização</span>
+                      <span className="font-medium text-foreground leading-tight">{kestraStatus.lastUpdated}</span>
+                    </div>
+                  </a>
+                </>
+              ) : (
+                <span className="text-muted-foreground text-[10px]">Status Indisponível</span>
+              )}
+            </div>
+
             <Button variant="ghost" size="icon" onClick={handleLogout} className="text-muted-foreground hover:text-red-500 transition-colors">
               <LogOut className="h-5 w-5" />
             </Button>
