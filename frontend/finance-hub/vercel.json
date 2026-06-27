@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/kestra-api/:match*",
+      "destination": "https://www.kestra.scoreconsultoria.com.br/:match*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

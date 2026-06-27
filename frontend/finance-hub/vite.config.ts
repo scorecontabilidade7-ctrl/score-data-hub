@@ -9,6 +9,13 @@ export default defineConfig(({ mode }) => ({
     hmr: {
       overlay: false,
     },
+    proxy: {
+      '/kestra-api': {
+        target: 'https://www.kestra.scoreconsultoria.com.br',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/kestra-api/, '')
+      }
+    }
   },
   plugins: [react()],
   resolve: {

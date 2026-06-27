@@ -63,7 +63,11 @@ export function useKestraStatus() {
           'Authorization': `Basic ${btoa(basicAuth)}`
         };
         
-        const res = await fetch(urlObj.toString(), { headers });
+        // Em vez de bater direto na API e tomar block do CORS, 
+        // usamos o proxy configurado no vite.config.ts (ou vercel.json em prod)
+        const proxyUrl = `/kestra-api/api/v1/executions/search?${urlObj.searchParams.toString()}`;
+        
+        const res = await fetch(proxyUrl, { headers });
         
         if (!res.ok) {
           throw new Error(`Erro na API: ${res.status}`);
