@@ -1,12 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
-const EXTERNAL_SUPABASE_URL = import.meta.env.VITE_FINANCIAL_SUPABASE_URL;
-const EXTERNAL_SUPABASE_KEY = import.meta.env.VITE_FINANCIAL_SUPABASE_ANON_KEY;
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const externalSupabase = createClient(EXTERNAL_SUPABASE_URL, EXTERNAL_SUPABASE_KEY);
-
-// Projeto Sólides — dados de RH (colaboradores, perfis DISC, mapa de talentos)
-const SOLIDES_SUPABASE_URL = import.meta.env.VITE_SOLIDES_SUPABASE_URL;
-const SOLIDES_SUPABASE_KEY = import.meta.env.VITE_SOLIDES_SUPABASE_ANON_KEY;
-
-export const solidesSupabase = createClient(SOLIDES_SUPABASE_URL, SOLIDES_SUPABASE_KEY);
+// No nosso novo modelo consolidado, todas as tabelas (Datahub, Financeiro, Solides)
+// estão no mesmo projeto do Supabase. Portanto, reaproveitamos as mesmas credenciais.
+export const externalSupabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+export const solidesSupabase = createClient(SUPABASE_URL, SUPABASE_KEY);
