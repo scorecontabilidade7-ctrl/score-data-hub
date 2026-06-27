@@ -17,6 +17,7 @@ export function useKestraStatus() {
       const basicAuth = import.meta.env.VITE_KESTRA_BASIC_AUTH;
 
       if (!fullUrl || !basicAuth) {
+        console.warn("Kestra Status: Variáveis VITE_KESTRA_STATUS_URL ou VITE_KESTRA_BASIC_AUTH não encontradas no ambiente (env)!");
         setIsLoading(false);
         setError("Kestra não configurado no .env");
         return;
@@ -112,6 +113,8 @@ export function useKestraStatus() {
             status: statusFormat,
             kestraUrl: uiUrl
           });
+        } else {
+          console.warn("Kestra Status: Nenhum resultado encontrado na resposta!", data);
         }
       } catch (err: any) {
         console.error("Erro ao buscar status do Kestra:", err);
