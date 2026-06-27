@@ -44,7 +44,7 @@ tasks:
           import subprocess
           import os
           print("Iniciando ETL Financeiro...")
-          os.chdir("etl")
+          # O beforeCommands já fez 'cd etl', então o diretório atual já é o 'etl'
           subprocess.check_call([sys.executable, "main.py"])
 
       - id: execute_rh
@@ -65,5 +65,6 @@ tasks:
           import subprocess
           import os
           print("Iniciando ETL de RH (Solides)...")
-          os.chdir("etl/solides-people-pipeline")
+          # O beforeCommands já fez 'cd etl', então só precisamos entrar na subpasta
+          os.chdir("solides-people-pipeline")
           subprocess.check_call([sys.executable, "pipeline.py"])
