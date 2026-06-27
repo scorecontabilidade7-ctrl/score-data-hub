@@ -69,12 +69,9 @@ export function RHDashboard() {
                 <RefreshCcw className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
               ) : kestraStatus ? (
                 <>
-                  <a
-                    href={kestraStatus.kestraUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
-                    title={`Ver logs no Kestra (${kestraStatus.status})`}
+                  <div
+                    className="flex items-center gap-1.5"
+                    title={`Status da Sincronização: ${kestraStatus.status}`}
                   >
                     {kestraStatus.status === 'Sucesso' && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />}
                     {kestraStatus.status === 'Em Execução' && <RefreshCcw className="h-3.5 w-3.5 animate-spin text-blue-500" />}
@@ -86,7 +83,7 @@ export function RHDashboard() {
                       <span className="text-[9px] text-muted-foreground font-semibold uppercase leading-tight">Sincronização</span>
                       <span className="font-medium text-foreground leading-tight">{kestraStatus.lastUpdated}</span>
                     </div>
-                  </a>
+                  </div>
                 </>
               ) : (
                 <span className="text-muted-foreground text-[10px]">Status Indisponível</span>

@@ -93,8 +93,9 @@ export function useKestraStatus() {
           }
 
           let dataStr = 'N/A';
-          if (exec.state?.startDate) {
-            const dt = new Date(exec.state.startDate);
+          const targetDate = exec.state?.endDate || exec.state?.startDate;
+          if (targetDate) {
+            const dt = new Date(targetDate);
             dataStr = dt.toLocaleString('pt-BR', { 
               timeZone: 'America/Sao_Paulo',
               day: '2-digit',
