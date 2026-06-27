@@ -48,24 +48,4 @@ tasks:
           # O beforeCommands já fez 'cd etl', então o diretório atual já é o 'etl'
           subprocess.check_call([sys.executable, "main.py"])
 
-      - id: execute_rh
-        type: io.kestra.plugin.scripts.python.Script
-        containerImage: python:3.11-slim
-        env:
-          SUPABASE_URL: "{{ kv('KV_SUPABASE_URL') }}"
-          SUPABASE_KEY: "{{ kv('KV_SUPABASE_KEY') }}"
-          FIN_SUPABASE_URL: "{{ kv('KV_FIN_SUPABASE_URL') }}"
-          FIN_SUPABASE_KEY: "{{ kv('KV_FIN_SUPABASE_KEY') }}"
-          # Caso o pipeline da Solides use tokens específicos, mapeie-os aqui se existirem:
-          # SOLIDES_TOKEN: "{{ kv('KV_SOLIDES_TOKEN') }}"
-        beforeCommands:
-          - cd etl
-          - pip install --no-cache-dir -r requirements.txt
-        script: |
-          import sys
-          import subprocess
-          import os
-          print("Iniciando ETL de RH (Solides)...")
-          # O beforeCommands já fez 'cd etl', então só precisamos entrar na subpasta
-          os.chdir("solides-people-pipeline")
-          subprocess.check_call([sys.executable, "pipeline.py"])
+
